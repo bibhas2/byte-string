@@ -49,41 +49,25 @@ public class LibraryTest {
 
     public void testParseInt(String str, int actual) {
         var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
-        var s = new ByteBufferString(buff);
 
-        assertEquals(s.parseInt(), actual);
+        assertEquals(ByteStr.parseInt(buff), actual);
     }
 
     public void testParseDouble(String str, double actual) {
         var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
-        var s = new ByteBufferString(buff);
 
-        assertEquals(s.parseDouble(), actual, 0.0001);
+        assertEquals(ByteStr.parseDouble(buff), actual, 0.0001);
     }
     public void testTrim(String str, String actual) {
         var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
-        var s = new ByteBufferString(buff);
 
-        s.trim();
+        buff = ByteStr.trim(buff);
 
-        String result = StandardCharsets.UTF_8.decode(s.buffer()).toString();
+        String result = StandardCharsets.UTF_8.decode(buff).toString();
 
         assertEquals(result, actual);
     }
 
-    @Test
-    public void testEquals() {
-        var buff1 = ByteBuffer.wrap("Hello World".getBytes(StandardCharsets.UTF_8));
-        var s1 = new ByteBufferString(buff1);
-        var s2 = new ByteBufferString(buff1);
-
-        assertTrue(s1.equals(s2));
-
-        var buff2 = ByteBuffer.wrap("Hello Moons".getBytes(StandardCharsets.UTF_8));
-        var s3 = new ByteBufferString(buff2);
-
-        assertFalse(s1.equals(s3));
-    }
 
     @Test
     public void testUpperCase() {
@@ -94,11 +78,10 @@ public class LibraryTest {
 
     public void testUpperCase(String str, String actual) {
         var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
-        var s = new ByteBufferString(buff);
 
-        s.toUpperCase();
+        ByteStr.toUpperCase(buff);
 
-        String result = StandardCharsets.UTF_8.decode(s.buffer()).toString();
+        String result = StandardCharsets.UTF_8.decode(buff).toString();
 
         assertEquals(result, actual);
     }

@@ -3,35 +3,23 @@ package org.mobiarch;
 import java.nio.ByteBuffer;
 
 /**
- * <p>A class that wraps a ByteBuffer and creates a String like
- * interface. The idea is to treat bytes like characters.</p>
+ * <p>A class that gives String line interface to ByteBuffer.
+ * Common operations like trim() and toUpperCase() are done without 
+ * allocating any memory or copying data.
+ * </p>
  * 
- * <p><b>Caveat:</b> Most methods like parseInt() and trim() will only work if the data 
- * in ByteBuffer is in a multi-byte encoding, such as 
- * ASCII or UTF-8.</p>
+ * <p><b>Caveat:</b> The ByteBuffer must contain bytes encoded in UTF-8
+ * or a subset like ASCII.
+ * </p>
+ * 
  * <p>
  * The mental model of this class is very similar to  
- * std::string_view of C++.
+ * std::string_view of C++. This will be useful to port std::string_view 
+ * based code to Java.
  * </p>
- * <p>
- * Unlike Java's String, this class is fully mutable. Also, a substring
- * returns a slice and does not allocate or copy.
- * </p>
+ * 
  */
-public class ByteBufferString implements Comparable<ByteBufferString> {
-    private ByteBuffer buff;
-
-    /**
-     * Creates a new ByteBufferString by wrapping over
-     * the supplied ByteBuffer. No copy of data is made.
-     * 
-     * @param buff The ByteBuffer to wrap over. The underlying data should use a multi-byte 
-     * encoding such as ASCII and UTF-8.
-     */
-    public ByteBufferString(ByteBuffer buff) {
-        this.buff = buff;
-    }
-
+public class ByteStr {
     /*
      * Dumps the bytes in a ByteBuffer as-is to console. This is pretty
      * much how std::string or std::string_view is printed in C++.
@@ -50,22 +38,20 @@ public class ByteBufferString implements Comparable<ByteBufferString> {
             System.out.write((int) buff.get(i));
         }
     }
-    /**
-     * Prints this string.
-     */
-    public void print() {
-        ByteBufferString.print(buff);
-    }
 
     /**
      * 
-     * Excludes the leading and trailing white spaces.
-     * Unlike Java's String, the change is made in place.
+     * Returns a slice of the supplied buffer by
+     * excluding the leading and trailing white spaces.
      * 
+     * @param buff The ByteBuffer to trim.
+     * 
+     * @return A new ByteBuffer that is a slice of the supplied
+     * ByteBuffer. The original ByteBuffer is left unaltered.
      */
-    public void trim() {
+    public static ByteBuffer trim(ByteBuffer buff) {
         if (buff.limit() == 0) {
-            return;
+            return buff;
         }
 
         int start = 0;
@@ -104,7 +90,7 @@ public class ByteBufferString implements Comparable<ByteBufferString> {
             end = start - 1;
         }
 
-        buff = buff.slice(start, end - start + 1);
+        return buff.slice(start, end - start + 1);
     }
 
     /**
@@ -113,9 +99,11 @@ public class ByteBufferString implements Comparable<ByteBufferString> {
      * 
      * <p>Valid values: -0.001, 100, -100, -.001, -12.001</p>
      * 
+     * @param buff The ByteBuffer to parse.
+     * 
      * @return The parsed double value.
      */
-    public double parseDouble() {
+    public static double parseDouble(ByteBuffer buff) {
         double result = 0.0;
         int decimalBase = 1;
         int base = 1;
@@ -165,9 +153,11 @@ public class ByteBufferString implements Comparable<ByteBufferString> {
      * 
      * <p>Valid values: 100, -100, -0012</p>
      * 
+     * @param buff The ByteBuffer to parse.
+     * 
      * @return The parsed integer value.
      */
-    public int parseInt() {
+    public static int parseInt(ByteBuffer buff) {
         int result = 0;
         int base = 1;
      
@@ -195,30 +185,14 @@ public class ByteBufferString implements Comparable<ByteBufferString> {
         return result;
     }
 
-    @Override
-    public int compareTo(ByteBufferString other) {
-        return buff.compareTo(other.buff);
-    }
-
-    public ByteBuffer buffer() {
-        return buff;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ByteBufferString) { 
-            return ((ByteBufferString)obj).buffer().equals(this.buff);
-        }
-
-        return false;
-    }
-
     /**
      * Converts the lowercase Latin characters to upper case.
      * Unlike Java's String class the change is made in place and no new
      * memory is allocated.
+     * 
+     * @param buff The ByteBuffer to convert to upper case.
      */
-    public void toUpperCase() {
+    public static void toUpperCase(ByteBuffer buff) {
         for (int i = 0; i < buff.limit(); ++i) {
             var ch = buff.get(i);
 
