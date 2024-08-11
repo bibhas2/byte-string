@@ -219,10 +219,13 @@ public class ByteStr {
         }
     }
 
-    /*
-     * TODO:
-     * substring
-     * length
-     * toString
-     */
+    public static int indexOf(ByteBuffer buff, byte ch, int fromIndex) {
+        for (int i = fromIndex; i < buff.limit(); ++i) {
+            if (buff.get(i) == ch) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
 }

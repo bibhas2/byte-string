@@ -102,4 +102,22 @@ public class LibraryTest {
 
         assertEquals(result, actual);
     }
+
+    public void testIndexOf(String str, char ch, int fromIndex, int actual) {
+        var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
+
+        int idx = ByteStr.indexOf(buff, (byte) ch, fromIndex);
+
+        assertEquals(idx, actual);
+    }
+
+    @Test
+    public void testIndexOf() {
+        testIndexOf("Hello World", ' ', 0, 5);
+        testIndexOf("Hello World", ' ', 5, 5);
+        testIndexOf("Hello World", ' ', 6, -1);
+        testIndexOf("HelloWorld", ' ', 0, -1);
+        testIndexOf("", ' ', 0, -1);
+        testIndexOf("HelloWorld", ' ', 100, -1);
+    }
 }
