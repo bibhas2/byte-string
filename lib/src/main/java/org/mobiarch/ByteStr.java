@@ -3,7 +3,7 @@ package org.mobiarch;
 import java.nio.ByteBuffer;
 
 /**
- * <p>A class that gives String line interface to ByteBuffer.
+ * <p>A class that gives String like interface to ByteBuffer.
  * Common operations like trim() and toUpperCase() are done without 
  * allocating any memory or copying data.
  * </p>
@@ -198,6 +198,23 @@ public class ByteStr {
 
             if(ch >= 97 && ch <= 122) {
                 buff.put(i, (byte) (ch - 32));
+            }
+        }
+    }
+
+    /**
+     * Converts the upper case Latin characters to lower case.
+     * Unlike Java's String class the change is made in place and no new
+     * memory is allocated.
+     * 
+     * @param buff The ByteBuffer to convert to lower case.
+     */
+    public static void toLowerCase(ByteBuffer buff) {
+        for (int i = 0; i < buff.limit(); ++i) {
+            var ch = buff.get(i);
+
+            if(ch >= 65 && ch <= 90) {
+                buff.put(i, (byte) (ch + 32));
             }
         }
     }

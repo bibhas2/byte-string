@@ -68,6 +68,23 @@ public class LibraryTest {
         assertEquals(result, actual);
     }
 
+    @Test
+    public void testLowerCase() {
+        testLowerCase("Hello World", "hello world");
+        testLowerCase("HELLO WORLD", "hello world");
+        testLowerCase("hello world", "hello world");
+        testLowerCase("", "");
+    }
+
+    public void testLowerCase(String str, String actual) {
+        var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
+
+        ByteStr.toLowerCase(buff);
+
+        String result = StandardCharsets.UTF_8.decode(buff).toString();
+
+        assertEquals(result, actual);
+    }
 
     @Test
     public void testUpperCase() {
