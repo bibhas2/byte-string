@@ -164,6 +164,11 @@ public class ByteStr {
      * 
      * <p>Valid values: 100, -100, -0012</p>
      * 
+     * <p>Parsing starts from the current position of the buffer. 
+     * The position of the buffer is moved forward to the first non digit
+     * byte after the number. This lets you parse a sequence of
+     * numbers in the same buffer.</p>
+     * 
      * @param buff The ByteBuffer to parse.
      * 
      * @return The parsed integer value.
@@ -171,18 +176,52 @@ public class ByteStr {
     public static int parseInt(ByteBuffer buff) {
         int result = 0;
         int base = 1;
+        //Start and end position of the
+        //integer inclusive of both
+        int start = -1;
+        int end = -1;
 
-        /*
-         * Java's Integer.parseInt() trims the String.
-         * Let's do the same.
-         */
-        buff = trim(buff);
-        
-        for (int i = buff.limit() - 1; i >= 0; --i) {
+        if (!buff.hasRemaining()) {
+            throw new NumberFormatException("Invalid input.");
+        }
+
+        //Move position forward until we find the
+        //start of the number.
+        while (buff.hasRemaining()) {
+            int ch = buff.get();
+
+            if (ch == 45 || (ch >= 48 && ch <= 57)) {
+                buff.position(buff.position() - 1);
+                start = buff.position();
+
+                break;
+            }
+        }
+
+        if (!buff.hasRemaining()) {
+            throw new NumberFormatException("Invalid input.");
+        } 
+
+        //Now look for the end of the number
+        while (buff.hasRemaining()) {
+            int ch = buff.get();
+
+            if (!(ch == 45 || (ch >= 48 && ch <= 57))) {
+                buff.position(buff.position() - 1);
+
+                break;
+            }
+        }
+
+        end = buff.position() - 1;
+
+        System.out.printf("Start: %d End: %d\n", start, end);
+
+        for (int i = end; i >= start; --i) {
             int ch = buff.get(i);
      
             //Deal with minus sign
-            if (i == 0 && ch == 45) {
+            if (i == start && ch == 45) {
                 result *= -1;
      
                 continue;

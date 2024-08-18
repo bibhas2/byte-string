@@ -13,14 +13,35 @@ public class LibraryTest {
     @Test
     public void testParseInt() {
         testParseInt("100", 100);
+        testParseInt("  100", 100);
+        testParseInt("100  ", 100);
+        testParseInt("  100  ", 100);
         testParseInt("00100", 100);
         testParseInt("-100", -100);
         testParseInt("-00100", -100);
         testParseInt("1", 1);
+        testParseInt(" 1", 1);
+        testParseInt(" 1 ", 1);
         testParseInt("-1", -1);
+        testParseInt(" -1", -1);
+        testParseInt("-1 ", -1);
+        testParseInt(" -1 ", -1);
         testParseInt("00", 0);
         testParseInt("-00", 0);
+        testParseInt("-", 0);
+        testParseInt(" - ", 0);
     }
+
+    @Test
+    public void testParseIntSequence() {
+        int[] expected = {0, 11, 22, 33};
+
+        testParseIntSequence("0 11 22 33", expected);
+        testParseIntSequence("0 11 22 33  ", expected);
+        testParseIntSequence(" 0 11 22 33", expected);
+        testParseIntSequence("0, 11, 22, 33", expected);
+    }
+
     @Test 
     public void testParseDouble() {
         testParseDouble("00.0129", 0.0129);
@@ -47,10 +68,18 @@ public class LibraryTest {
         testTrim(" ", "");
     }
 
-    public void testParseInt(String str, int actual) {
+    public void testParseInt(String str, int expected) {
         var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
 
-        assertEquals(ByteStr.parseInt(buff), actual);
+        assertEquals(expected, ByteStr.parseInt(buff));
+    }
+
+    public void testParseIntSequence(String str, int[] expected) {
+        var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
+
+        for (var i : expected) {
+            assertEquals(i, ByteStr.parseInt(buff));
+        }
     }
 
     public void testParseDouble(String str, double actual) {
