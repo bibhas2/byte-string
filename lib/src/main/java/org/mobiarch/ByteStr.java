@@ -219,6 +219,16 @@ public class ByteStr {
         }
     }
 
+    /**
+     * Returns the first index of a byte in the ByteBuffer
+     * starting from the specified index.
+     * 
+     * @param buff The buffer to search.
+     * @param ch The byte to look for.
+     * @param fromIndex Start searching from this index.
+     * @return The index where the given byte appears. If not found -1
+     * is returned.
+     */
     public static int indexOf(ByteBuffer buff, byte ch, int fromIndex) {
         for (int i = fromIndex; i < buff.limit(); ++i) {
             if (buff.get(i) == ch) {
