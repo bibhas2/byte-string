@@ -165,9 +165,18 @@ public class ByteStr {
      * <p>Valid values: 100, -100, -0012</p>
      * 
      * <p>Parsing starts from the current position of the buffer. 
-     * The position of the buffer is moved forward to the first non digit
-     * byte after the number. This lets you parse a sequence of
-     * numbers in the same buffer.</p>
+     * After parsing, the position of the buffer is moved forward 
+     * to the first non digit byte after the number. This lets 
+     * you parse a sequence of numbers in the same buffer.
+     * For example, parsing the buffer "100 -2 5" repeatedly will
+     * return 100, -2 and 5 consecutively.</p>
+     * 
+     * <p>All non-digit and negative signs before the
+     * number are ignored. So, parsing "HELLO-10WORLD"
+     * will return -10. The position of the buffer
+     * will be set to the 'W' character. This behavior
+     * let's you parse a delimited list
+     * repeatedly like this: "-1, 2, 33, 5".</p>
      * 
      * @param buff The ByteBuffer to parse.
      * 
