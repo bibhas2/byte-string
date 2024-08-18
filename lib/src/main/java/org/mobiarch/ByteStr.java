@@ -90,7 +90,12 @@ public class ByteStr {
             end = start - 1;
         }
 
-        return buff.slice(start, end - start + 1);
+        if (start == 0 && end == buff.limit() - 1) {
+            //Nothing to trim
+            return buff;
+        } else {
+            return buff.slice(start, end - start + 1);
+        }
     }
 
     /**
@@ -109,6 +114,12 @@ public class ByteStr {
         int base = 1;
         boolean hasDecimal = false;
      
+        /*
+         * Java's Double.parseDouble() trims the String.
+         * Let's do the same.
+         */
+        buff = trim(buff);
+
         for (int i = buff.limit() - 1; i >= 0; --i) {
             int ch = buff.get(i);
      
@@ -160,7 +171,13 @@ public class ByteStr {
     public static int parseInt(ByteBuffer buff) {
         int result = 0;
         int base = 1;
-     
+
+        /*
+         * Java's Integer.parseInt() trims the String.
+         * Let's do the same.
+         */
+        buff = trim(buff);
+        
         for (int i = buff.limit() - 1; i >= 0; --i) {
             int ch = buff.get(i);
      
