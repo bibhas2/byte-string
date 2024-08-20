@@ -99,10 +99,23 @@ public class ByteStr {
     }
 
     /**
-     * <p>Parses the ByteBuffer into a double. Aside from digits 0-9 only 
-     * a leading "-" and a decimal "." character are permitted.</p>
+     * <p>Parses the ByteBuffer into a double. Allowed characters are: 0-9, a 
+     * leading minus sign and a decimal ('.').</p>
      * 
-     * <p>Valid values: -0.001, 100, -100, -.001, -12.001</p>
+     * <p>Example values: 100.11, -100, -.0012</p>
+     * 
+     * <p>Parsing starts from the current position of the buffer. 
+     * After parsing, the position of the buffer is moved forward 
+     * to the first disallowed character after the number.</p>
+     * 
+     * <p>All disallowed characters before the
+     * number are ignored. Parsing stops when a disallowed character is
+     * encountered after the number. So, parsing "HELLO-0.10WORLD"
+     * will return -0.10. The position of the buffer
+     * will be set to the 'W' character. This means
+     * parsing a delimited list
+     * such as "-1.1, 2.5, .33, 5" repeatedly will return
+     * -1.1, 2.5, .33 and, 5.0.</p>
      * 
      * @param buff The ByteBuffer to parse.
      * 
@@ -113,14 +126,48 @@ public class ByteStr {
         int decimalBase = 1;
         int base = 1;
         boolean hasDecimal = false;
-     
-        /*
-         * Java's Double.parseDouble() trims the String.
-         * Let's do the same.
-         */
-        buff = trim(buff);
+        //Start and end position of the
+        //number inclusive of both
+        int start = -1;
+        int end = -1;
 
-        for (int i = buff.limit() - 1; i >= 0; --i) {
+        if (!buff.hasRemaining()) {
+            throw new NumberFormatException("Invalid input.");
+        }
+
+        //Move position forward until we find the
+        //start of the number.
+        while (buff.hasRemaining()) {
+            int ch = buff.get();
+
+            if (ch == 45 || ch == 46 || (ch >= 48 && ch <= 57)) {
+                buff.position(buff.position() - 1);
+                start = buff.position();
+
+                break;
+            }
+        }
+
+        if (!buff.hasRemaining()) {
+            throw new NumberFormatException("Invalid input.");
+        } 
+
+        //Now look for the end of the number
+        while (buff.hasRemaining()) {
+            int ch = buff.get();
+
+            if (!(ch == 45 || ch == 46 || (ch >= 48 && ch <= 57))) {
+                buff.position(buff.position() - 1);
+
+                break;
+            }
+        }
+
+        end = buff.position() - 1;
+
+        System.out.printf("Start: %d End: %d\n", start, end);
+
+        for (int i = end; i >= start; --i) {
             int ch = buff.get(i);
      
             //Deal with minus sign
@@ -159,20 +206,18 @@ public class ByteStr {
     }
 
     /**
-     * <p>Parses the ByteBuffer into an integer. Aside from digits 0-9 only 
-     * a leading "-" character is permitted.</p>
+     * <p>Parses the ByteBuffer into an integer. Aside from the digits (0-9) only 
+     * a leading minus sign ("-" character) is permitted.</p>
      * 
-     * <p>Valid values: 100, -100, -0012</p>
+     * <p>Example values: 100, -100, -0012</p>
      * 
      * <p>Parsing starts from the current position of the buffer. 
      * After parsing, the position of the buffer is moved forward 
-     * to the first non digit byte after the number. This lets 
-     * you parse a sequence of numbers in the same buffer.
-     * For example, parsing the buffer "100 -2 5" repeatedly will
-     * return 100, -2 and 5 consecutively.</p>
+     * to the first non digit byte after the number.</p>
      * 
-     * <p>All non-digit and negative signs before the
-     * number are ignored. So, parsing "HELLO-10WORLD"
+     * <p>All non-numerical characters before the
+     * number are ignored. Parsing stops when a non-numerical character is
+     * encountered. So, parsing "HELLO-10WORLD"
      * will return -10. The position of the buffer
      * will be set to the 'W' character. This behavior
      * let's you parse a delimited list

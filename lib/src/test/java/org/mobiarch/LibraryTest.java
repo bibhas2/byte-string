@@ -45,12 +45,25 @@ public class LibraryTest {
     @Test 
     public void testParseDouble() {
         testParseDouble("00.0129", 0.0129);
+        testParseDouble(" 00.0129", 0.0129);
+        testParseDouble("00.0129 ", 0.0129);
+        testParseDouble("  00.0129  ", 0.0129);
         testParseDouble("-00.0129", -0.0129);
         testParseDouble("-23.0129", -23.0129);
         testParseDouble("0129", 129.0);
         testParseDouble("-0129", -129.0);
         testParseDouble("-.0129", -.0129);
         testParseDouble(".0129", .0129);
+    }
+
+    @Test
+    public void testParseDoubleSequence() {
+        double[] expected = {0.0, 11.11, 22.22, 33.33};
+
+        testParseDoubleSequence("0.0 11.11 22.22 33.33", expected);
+        testParseDoubleSequence("0.0 11.11 22.22 33.33  ", expected);
+        testParseDoubleSequence(" 0.0 11.11 22.22 33.33", expected);
+        testParseDoubleSequence("0.0, 11.11, 22.22, 33.33", expected);
     }
 
     @Test
@@ -79,6 +92,16 @@ public class LibraryTest {
 
         for (var i : expected) {
             assertEquals(i, ByteStr.parseInt(buff));
+        }
+    }
+
+    public void testParseDoubleSequence(String str, double[] expected) {
+        var buff = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
+
+        for (var d : expected) {
+            var d2 = ByteStr.parseDouble(buff);
+
+            assertEquals(d, d2, 0.001);
         }
     }
 
